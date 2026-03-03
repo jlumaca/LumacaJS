@@ -29,7 +29,7 @@ function existe_auto(cod){
 function set_auto(){
     codigo = prompt("Ingrese codigo: ")
     indice = existe_auto(codigo)
-    if (indice == -1){
+    if (indice != -1){
         alert("Codigo ya utilizado");
     }else{
         marca = prompt("Ingrese marca: ")
@@ -44,7 +44,7 @@ function set_auto(){
 function get_auto(){
     cod = prompt("Ingrese codigo: ")
     indice = existe_auto(cod)
-    if (indice == -1){
+    if (indice != -1){
         alert("Marca: " + arr_autos[indice].marca + " Modelo: " + arr_autos[indice].modelo + " Motor: " + arr_autos[indice].motor + " Precio: " + arr_autos[indice].precio);
     }else{
         alert("Auto no encontrado");
@@ -52,15 +52,19 @@ function get_auto(){
 }
 
 function get_autos_todos(){
-    for (let i = 0; i < arr_autos.length ; i++){
-        alert("Marca: " + arr_autos[i].marca + " Modelo: " + arr_autos[i].modelo + " Motor: " + arr_autos[i].motor + " Precio: " + arr_autos[i].precio + " Codigo: " + arr_autos[i].codigo);
+    if (arr_autos.length == 0){
+        alert("No se han cargado autos");
+    }else{
+        for (let i = 0; i < arr_autos.length ; i++){
+            alert("Marca: " + arr_autos[i].marca + " Modelo: " + arr_autos[i].modelo + " Motor: " + arr_autos[i].motor + " Precio: " + arr_autos[i].precio + " Codigo: " + arr_autos[i].codigo);
+        }
     }
 }
 
 function delete_auto(){
     cod = prompt("Ingrese codigo: ")
     indice = existe_auto(cod)
-    if (indice == -1){
+    if (indice != -1){
         arr_autos.splice(indice, 1);
         alert("Auto eliminado");
     }else{

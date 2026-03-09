@@ -26,29 +26,49 @@ function existe_auto(cod){
     }
 }
 
-function set_auto(){
-    codigo = prompt("Ingrese codigo: ")
-    indice = existe_auto(codigo)
-    if (indice != -1){
-        alert("Codigo ya utilizado");
+
+function disponible_vendido(indice){
+    if (arr_autos[indice].disponible){
+        estado = "\nEstado: Disponible/En stock";
     }else{
-        marca = prompt("Ingrese marca: ")
-        modelo = prompt("Ingrese modelo: ")
-        motor = prompt("Ingrese motor: ")
-        precio = prompt("Ingrese precio: ")
-        arr_autos.push(new Auto(codigo, marca, modelo, precio, motor))
+        estado = "\nEstado: Vendido";
     }
+    return estado
+}
+function set_auto(){
+    codigo = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
+    if (codigo != -1){
+        indice = existe_auto(codigo)
+        if (indice != -1){
+            alert("Codigo ya utilizado");
+            set_auto()
+        }else{
+            marca = prompt("Ingrese marca: ")
+            modelo = prompt("Ingrese modelo: ")
+            motor = prompt("Ingrese motor: ")
+            precio = prompt("Ingrese precio: ")
+            arr_autos.push(new Auto(codigo, marca, modelo, precio, motor))
+            console.log(arr_autos)
+        }
+    }
+    
     
 }
 
 function get_auto(){
-    cod = prompt("Ingrese codigo: ")
-    indice = existe_auto(cod)
-    if (indice != -1){
-        alert("Marca: " + arr_autos[indice].marca + " Modelo: " + arr_autos[indice].modelo + " Motor: " + arr_autos[indice].motor + " Precio: " + arr_autos[indice].precio);
-    }else{
-        alert("Auto no encontrado");
+    cod = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
+    if (cod != -1){
+        indice = existe_auto(cod)
+        if (indice != -1){
+            alert("Marca: " + arr_autos[indice].marca + " Modelo: " + arr_autos[indice].modelo + " Motor: " + arr_autos[indice].motor + " Precio: " + arr_autos[indice].precio + disponible_vendido(indice));
+            get_auto()
+            console.log(arr_autos)
+        }else{
+            alert("Auto no encontrado");
+            get_auto()
+        }
     }
+    
 }
 
 function get_autos_todos(){
@@ -56,20 +76,51 @@ function get_autos_todos(){
         alert("No se han cargado autos");
     }else{
         for (let i = 0; i < arr_autos.length ; i++){
-            alert("Marca: " + arr_autos[i].marca + " Modelo: " + arr_autos[i].modelo + " Motor: " + arr_autos[i].motor + " Precio: " + arr_autos[i].precio + " Codigo: " + arr_autos[i].codigo);
+            alert("Marca: " + arr_autos[i].marca + " Modelo: " + arr_autos[i].modelo + " Motor: " + arr_autos[i].motor + " Precio: " + arr_autos[i].precio + " Codigo: " + arr_autos[i].codigo + disponible_vendido(i));
         }
+        console.log(arr_autos)
     }
 }
 
-function delete_auto(){
-    cod = prompt("Ingrese codigo: ")
-    indice = existe_auto(cod)
-    if (indice != -1){
-        arr_autos.splice(indice, 1);
-        alert("Auto eliminado");
-    }else{
-        alert("Auto no encontrado");
+
+function vender_auto(){
+    cod = parseInt(prompt("Ingrese codigo  o presione -1 para volver a menu principal: "))
+    if (cod != -1){
+        indice = existe_auto(cod)
+        if (indice != -1){
+            if (arr_autos[i].disponible){
+                arr_autos[i].vendido();
+                alert("Auto vendido con éxito");
+                console.log(arr_autos)
+                vender_auto()
+            }else{
+                alert("El auto ya se encuentra vendido");
+                vender_auto()
+            }
+        }else{
+            alert("Auto no encontrado");
+            vender_auto()  
+        }
     }
+    
+}
+
+
+function delete_auto(){
+    cod = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
+    if (cod != -1){
+        indice = existe_auto(cod)
+        if (indice != -1){
+            arr_autos.splice(indice, 1);
+            alert("Auto eliminado");
+            console.log(arr_autos)
+            delete_auto()
+        }else{
+            alert("Auto no encontrado");
+            delete_auto()
+        }
+    }
+    
 }
 
 function menu_principal(opcion){
@@ -87,6 +138,9 @@ function menu_principal(opcion){
             get_autos_todos()
             break;
         case 4:
+            vender_auto()
+            break;
+        case 5:
             delete_auto();
             break;
         default:
@@ -96,6 +150,6 @@ function menu_principal(opcion){
 }
 
 do {
-    opcion = parseInt(prompt("Bienvenido a BuyCars UY, por favor seleccione una opcion: \n 1- Nuevo auto \n 2- Buscar auto \n 3- Ver autos \n 4- Borrar auto \n 0- Salir"));
+    opcion = parseInt(prompt("Bienvenido a BuyCars UY, por favor seleccione una opcion: \n 1- Nuevo auto \n 2- Buscar auto \n 3- Ver autos \n 4- Vender auto \n 5- Borrar auto \n 0- Salir"));
     menu_principal(opcion);
 } while (opcion !== 0);

@@ -1,155 +1,173 @@
-const arr_autos = []
+function mostrarMensaje(id, texto, tipo) {
+    const el = document.getElementById(id);
+    if (!el) return;
 
-function Auto(codigo,marca,modelo,precio,motor){
-    this.codigo = codigo;
-    this.marca = marca;
-    this.modelo = modelo;
-    this.precio = parseFloat(precio);
-    this.motor = motor;
-    this.disponible = true;
+    el.textContent = texto;
+    el.className = "msg " + tipo;
 
-    this.vendido = function (){
-        this.disponible = false;
+    // se borra solo después de 3 segundos
+    setTimeout(() => {
+        el.textContent = "";
+    }, 3000);
+}
+// ===== USUARIOS =====
+function getUsuarios() {
+    return JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+function guardarUsuarios(usuarios) {
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+}
+
+function registrar() {
+    const user = document.getElementById("reg_user").value;
+    const pass = document.getElementById("reg_pass").value;
+
+    let usuarios = getUsuarios();
+
+    if (usuarios.find(u => u.user === user)) {
+        mostrarMensaje("reg_msg", "El usuario ya existe", "error");
+        return;
+    }
+
+    usuarios.push({ user, pass });
+    guardarUsuarios(usuarios);
+
+    mostrarMensaje("reg_msg", "Usuario registrado correctamente", "success");
+
+    setTimeout(() => {
+        window.location.href = "login.html";
+    }, 1500);
+}
+
+function login() {
+    const user = document.getElementById("login_user").value;
+    const pass = document.getElementById("login_pass").value;
+
+    let usuarios = getUsuarios();
+
+    let encontrado = usuarios.find(u => u.user === user && u.pass === pass);
+
+    if (encontrado) {
+        localStorage.setItem("usuarioLogueado", user);
+        window.location.href = "autos.html";
+    } else {
+        mostrarMensaje("login_msg", "Credenciales incorrectas", "error");
     }
 }
 
-
-function existe_auto(cod){
-    i = 0;
-    while (i < arr_autos.length && arr_autos[i].codigo != cod){
-        i++;
-    };
-    if (i < arr_autos.length) {
-        return i
-    }else{
-        return -1
-    }
+function logout() {
+    localStorage.removeItem("usuarioLogueado");
+    window.location.href = "login.html";
 }
 
-
-function disponible_vendido(indice){
-    if (arr_autos[indice].disponible){
-        estado = "\nEstado: Disponible/En stock";
-    }else{
-        estado = "\nEstado: Vendido";
-    }
-    return estado
-}
-function set_auto(){
-    codigo = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
-    if (codigo != -1){
-        indice = existe_auto(codigo)
-        if (indice != -1){
-            alert("Codigo ya utilizado");
-            set_auto()
-        }else{
-            marca = prompt("Ingrese marca: ")
-            modelo = prompt("Ingrese modelo: ")
-            motor = prompt("Ingrese motor: ")
-            precio = prompt("Ingrese precio: ")
-            arr_autos.push(new Auto(codigo, marca, modelo, precio, motor))
-            console.log(arr_autos)
-        }
-    }
-    
-    
+// ===== AUTOS =====
+function getAutos() {
+    return JSON.parse(localStorage.getItem("autos")) || [];
 }
 
-function get_auto(){
-    cod = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
-    if (cod != -1){
-        indice = existe_auto(cod)
-        if (indice != -1){
-            alert("Marca: " + arr_autos[indice].marca + " Modelo: " + arr_autos[indice].modelo + " Motor: " + arr_autos[indice].motor + " Precio: " + arr_autos[indice].precio + disponible_vendido(indice));
-            get_auto()
-            console.log(arr_autos)
-        }else{
-            alert("Auto no encontrado");
-            get_auto()
-        }
-    }
-    
+function guardarAutos(autos) {
+    localStorage.setItem("autos", JSON.stringify(autos));
 }
 
-function get_autos_todos(){
-    if (arr_autos.length == 0){
-        alert("No se han cargado autos");
-    }else{
-        for (let i = 0; i < arr_autos.length ; i++){
-            alert("Marca: " + arr_autos[i].marca + " Modelo: " + arr_autos[i].modelo + " Motor: " + arr_autos[i].motor + " Precio: " + arr_autos[i].precio + " Codigo: " + arr_autos[i].codigo + disponible_vendido(i));
-        }
-        console.log(arr_autos)
+function agregarAuto() {
+    const codigo = document.getElementById("codigo").value;
+    const marca = document.getElementById("marca").value;
+    const modelo = document.getElementById("modelo").value;
+    const motor = document.getElementById("motor").value;
+    const precio = parseFloat(document.getElementById("precio").value);
+
+    let autos = getAutos();
+
+    if (autos.find(a => a.codigo == codigo)) {
+        mostrarMensaje("auto_msg", "El código ya existe", "error");
+        return;
     }
+
+    autos.push({ codigo, marca, modelo, motor, precio });
+    guardarAutos(autos);
+
+    mostrarMensaje("auto_msg", "Auto agregado correctamente", "success");
+    mostrarAutos(getAutos());
 }
 
+function eliminarAuto(codigo) {
+    let autos = getAutos();
+    autos = autos.filter(a => a.codigo != codigo);
+    guardarAutos(autos);
+    mostrarAutos(getAutos());
 
-function vender_auto(){
-    cod = parseInt(prompt("Ingrese codigo  o presione -1 para volver a menu principal: "))
-    if (cod != -1){
-        indice = existe_auto(cod)
-        if (indice != -1){
-            if (arr_autos[i].disponible){
-                arr_autos[i].vendido();
-                alert("Auto vendido con éxito");
-                console.log(arr_autos)
-                vender_auto()
-            }else{
-                alert("El auto ya se encuentra vendido");
-                vender_auto()
-            }
-        }else{
-            alert("Auto no encontrado");
-            vender_auto()  
-        }
-    }
-    
+    mostrarMensaje("auto_msg", "Auto eliminado", "success");
 }
 
+function modificarAuto() {
+    const codigo = document.getElementById("codigo").value;
+    let autos = getAutos();
 
-function delete_auto(){
-    cod = parseInt(prompt("Ingrese codigo o presione -1 para volver a menu principal: "))
-    if (cod != -1){
-        indice = existe_auto(cod)
-        if (indice != -1){
-            arr_autos.splice(indice, 1);
-            alert("Auto eliminado");
-            console.log(arr_autos)
-            delete_auto()
-        }else{
-            alert("Auto no encontrado");
-            delete_auto()
-        }
+    let auto = autos.find(a => a.codigo == codigo);
+
+    if (!auto) {
+        mostrarMensaje("auto_msg", "Auto no encontrado", "error");
+        return;
     }
-    
+
+    auto.marca = document.getElementById("marca").value;
+    auto.modelo = document.getElementById("modelo").value;
+    auto.motor = document.getElementById("motor").value;
+    auto.precio = parseFloat(document.getElementById("precio").value);
+
+    guardarAutos(autos);
+    mostrarAutos(getAutos());
+
+    mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
-function menu_principal(opcion){
-    switch (opcion){
-        case 0:
-            alert("Gracias por visitar BuyCars UY!");
-            break;
-        case 1:
-            set_auto();
-            break;
-        case 2:
-            get_auto();
-            break;
-        case 3:
-            get_autos_todos()
-            break;
-        case 4:
-            vender_auto()
-            break;
-        case 5:
-            delete_auto();
-            break;
-        default:
-            alert("Opción no válida")
-            break;
+function mostrarAutos(autos) {
+    const tabla = document.getElementById("tabla_autos");
+    if (!tabla) return;
+    tabla.innerHTML = "";
+
+    autos.forEach(a => {
+        tabla.innerHTML += `
+            <tr>
+                <td>${a.codigo}</td>
+                <td>${a.marca}</td>
+                <td>${a.modelo}</td>
+                <td>${a.motor}</td>
+                <td>${a.precio}</td>
+                <td>
+                    <button onclick="eliminarAuto('${a.codigo}')">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+function buscarAuto() {
+    const codigo = document.getElementById("codigo").value;
+    let autos = getAutos();
+
+    let auto = autos.find(a => a.codigo == codigo);
+
+    if (!auto) {
+        mostrarMensaje("auto_msg", "Auto no encontrado", "error");
+        return;
     }
+
+    // auto.marca = document.getElementById("marca").value;
+    // auto.modelo = document.getElementById("modelo").value;
+    // auto.motor = document.getElementById("motor").value;
+    // auto.precio = parseFloat(document.getElementById("precio").value);
+
+    // guardarAutos(autos);
+    mostrarAutos([auto]);
+
+    // mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
-do {
-    opcion = parseInt(prompt("Bienvenido a BuyCars UY, por favor seleccione una opcion: \n 1- Nuevo auto \n 2- Buscar auto \n 3- Ver autos \n 4- Vender auto \n 5- Borrar auto \n 0- Salir"));
-    menu_principal(opcion);
-} while (opcion !== 0);
+function recargar(){
+    window.location.reload();
+}
+// ===== INIT =====
+document.addEventListener("DOMContentLoaded", () => {
+    mostrarAutos(getAutos());
+});

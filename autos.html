@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Autos - BuyCars UY</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <h2>Gestión de Autos</h2>
+
+    <div class="form">
+        <input type="text" id="codigo" placeholder="Código">
+        <input type="text" id="marca" placeholder="Marca">
+        <input type="text" id="modelo" placeholder="Modelo">
+        <input type="text" id="motor" placeholder="Motor">
+        <input type="number" id="precio" placeholder="Precio">
+
+        <button onclick="agregarAuto()">Agregar</button>
+        <button onclick="modificarAuto()">Modificar</button>
+        <button onclick="buscarAuto()">Buscar</button>
+        <button onclick="recargar()">Recargar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Motor</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla_autos"></tbody>
+    </table>
+
+    <button onclick="logout()">Cerrar sesión</button>
+    <p id="auto_msg" class="msg"></p>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

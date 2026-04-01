@@ -3,44 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <title>Autos - BuyCars UY</title>
-    <link rel="stylesheet" href="css/styles.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
 
-<div class="container">
-    <h2>Gestión de Autos</h2>
+<div class="container mt-5">
 
-    <div class="form">
-        <input type="text" id="codigo" placeholder="Código">
-        <input type="text" id="marca" placeholder="Marca">
-        <input type="text" id="modelo" placeholder="Modelo">
-        <input type="text" id="motor" placeholder="Motor">
-        <input type="number" id="precio" placeholder="Precio">
-        <input type="file" id="foto" accept="image/*">
-
-        <button id="btnAgregar">Agregar</button>
-        <button id="btnModificar">Modificar</button>
-        <button id="btnBuscar">Buscar</button>
-        <button id="btnRecargar">Recargar</button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestión de Autos</h2>
+        <button id="btnLogout" class="btn btn-danger">Cerrar sesión</button>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Código</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Motor</th>
-                <th>Precio</th>
-                <th>Foto</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="tabla_autos"></tbody>
-    </table>
+    <!-- FORM -->
+    <div class="card p-3 mb-4 shadow-sm">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <input type="text" id="codigo" class="form-control" placeholder="Código">
+            </div>
+            <div class="col-md-2">
+                <input type="text" id="marca" class="form-control" placeholder="Marca">
+            </div>
+            <div class="col-md-2">
+                <input type="text" id="modelo" class="form-control" placeholder="Modelo">
+            </div>
+            <div class="col-md-2">
+                <input type="text" id="motor" class="form-control" placeholder="Motor">
+            </div>
+            <div class="col-md-2">
+                <input type="number" id="precio" class="form-control" placeholder="Precio">
+            </div>
+            <div class="col-md-2">
+                <input type="file" id="foto" class="form-control">
+            </div>
+        </div>
 
-    <button id="btnLogout">Cerrar sesión</button>
-    <p id="auto_msg" class="msg"></p>
+        <div class="mt-3 d-flex gap-2 flex-wrap">
+            <button id="btnAgregar" class="btn btn-success">Agregar</button>
+            <button id="btnModificar" class="btn btn-warning">Modificar</button>
+            <button id="btnBuscar" class="btn btn-info">Buscar</button>
+            <button id="btnRecargar" class="btn btn-secondary">Recargar</button>
+        </div>
+        <br>
+        <p id="auto_msg" class="mt-2"></p>
+    </div>
+
+    <!-- TABLA -->
+    <div class="card shadow-sm">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Motor</th>
+                    <th>Precio</th>
+                    <th>Foto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla_autos"></tbody>
+        </table>
+    </div>
+
 </div>
 
 <script src="js/main.js"></script>

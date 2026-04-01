@@ -3,9 +3,11 @@ function mostrarMensaje(id, texto, tipo) {
     if (!el) return;
 
     el.textContent = texto;
-    el.className = "msg " + tipo;
+    el.className = "alert alert-" + (tipo === "error" ? "danger" : "success");
+
     setTimeout(() => {
         el.textContent = "";
+        el.className = "";
     }, 3000);
 }
 // ===== USUARIOS =====
@@ -162,7 +164,9 @@ function mostrarAutos(autos) {
                     ${a.foto ? `<img src="${a.foto}" width="80">` : "Sin foto"}
                 </td>
                 <td>
-                    <button onclick="eliminarAuto('${a.codigo}')">Eliminar</button>
+                    <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion('${a.codigo}')">
+                        🗑 Eliminar
+                    </button>
                 </td>
             </tr>
         `;

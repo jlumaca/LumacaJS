@@ -4,8 +4,6 @@ function mostrarMensaje(id, texto, tipo) {
 
     el.textContent = texto;
     el.className = "msg " + tipo;
-
-    // se borra solo después de 3 segundos
     setTimeout(() => {
         el.textContent = "";
     }, 3000);
@@ -62,6 +60,13 @@ function logout() {
 }
 
 // ===== AUTOS =====
+function limpiarCampos(){
+    document.getElementById("codigo").value = "";
+    document.getElementById("marca").value = "";
+    document.getElementById("modelo").value = "";
+    document.getElementById("motor").value = "";
+    document.getElementById("precio").value = "";
+}
 function getAutos() {
     return JSON.parse(localStorage.getItem("autos")) || [];
 }
@@ -76,7 +81,7 @@ function agregarAuto() {
     const modelo = document.getElementById("modelo").value;
     const motor = document.getElementById("motor").value;
     const precio = parseFloat(document.getElementById("precio").value);
-
+    const fotoInput = document.getElementById("foto");
     let autos = getAutos();
 
     if (autos.find(a => a.codigo == codigo)) {
@@ -84,11 +89,29 @@ function agregarAuto() {
         return;
     }
 
-    autos.push({ codigo, marca, modelo, motor, precio });
-    guardarAutos(autos);
+    if (fotoInput.files.length > 0) {
+        const reader = new FileReader();
 
-    mostrarMensaje("auto_msg", "Auto agregado correctamente", "success");
-    mostrarAutos(getAutos());
+        reader.onload = function (e) {
+            const fotoBase64 = e.target.result;
+
+            autos.push({ codigo, marca, modelo, motor, precio, foto: fotoBase64 });
+            guardarAutos(autos);
+
+            mostrarMensaje("auto_msg", "Auto agregado con foto", "success");
+            mostrarAutos(getAutos());
+        };
+
+        reader.readAsDataURL(fotoInput.files[0]);
+    } else {
+        // sin imagen
+        autos.push({ codigo, marca, modelo, motor, precio, foto: null });
+        guardarAutos(autos);
+
+        mostrarMensaje("auto_msg", "Auto agregado sin foto", "success");
+        mostrarAutos(getAutos());
+    }
+    limpiarCampos();
 }
 
 function eliminarAuto(codigo) {
@@ -118,7 +141,7 @@ function modificarAuto() {
 
     guardarAutos(autos);
     mostrarAutos(getAutos());
-
+    limpiarCampos();
     mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
@@ -135,6 +158,9 @@ function mostrarAutos(autos) {
                 <td>${a.modelo}</td>
                 <td>${a.motor}</td>
                 <td>${a.precio}</td>
+                <td>
+                    ${a.foto ? `<img src="${a.foto}" width="80">` : "Sin foto"}
+                </td>
                 <td>
                     <button onclick="eliminarAuto('${a.codigo}')">Eliminar</button>
                 </td>
@@ -164,10 +190,15 @@ function buscarAuto() {
     // mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
-function recargar(){
-    window.location.reload();
-}
 // ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
     mostrarAutos(getAutos());
 });
+function recargar(){
+    window.location.reload();
+}
+document.getElementById("btnAgregar").addEventListener("click", agregarAuto);
+document.getElementById("btnModificar").addEventListener("click", modificarAuto);
+document.getElementById("btnBuscar").addEventListener("click", buscarAuto);
+document.getElementById("btnRecargar").addEventListener("click", recargar);
+document.getElementById("btnLogout").addEventListener("click", logout);

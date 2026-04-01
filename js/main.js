@@ -10,7 +10,6 @@ function mostrarMensaje(id, texto, tipo) {
         el.className = "";
     }, 3000);
 }
-// ===== USUARIOS =====
 function getUsuarios() {
     return JSON.parse(localStorage.getItem("usuarios")) || [];
 }
@@ -36,7 +35,7 @@ function registrar() {
     mostrarMensaje("reg_msg", "Usuario registrado correctamente", "success");
 
     setTimeout(() => {
-        window.location.href = "login.html";
+        window.location.href = "../index.html";
     }, 1500);
 }
 
@@ -50,7 +49,7 @@ function login() {
 
     if (encontrado) {
         localStorage.setItem("usuarioLogueado", user);
-        window.location.href = "autos.html";
+        window.location.href = "templates/autos.html";
     } else {
         mostrarMensaje("login_msg", "Credenciales incorrectas", "error");
     }
@@ -58,10 +57,9 @@ function login() {
 
 function logout() {
     localStorage.removeItem("usuarioLogueado");
-    window.location.href = "login.html";
+    window.location.href = "../index.html";
 }
 
-// ===== AUTOS =====
 function limpiarCampos(){
     document.getElementById("codigo").value = "";
     document.getElementById("marca").value = "";
@@ -106,7 +104,6 @@ function agregarAuto() {
 
         reader.readAsDataURL(fotoInput.files[0]);
     } else {
-        // sin imagen
         autos.push({ codigo, marca, modelo, motor, precio, foto: null });
         guardarAutos(autos);
 
@@ -127,24 +124,49 @@ function eliminarAuto(codigo) {
 
 function modificarAuto() {
     const codigo = document.getElementById("codigo").value;
-    let autos = getAutos();
+    const marca = document.getElementById("marca").value;
+    const modelo = document.getElementById("modelo").value;
+    const motor = document.getElementById("motor").value;
+    const precio = parseFloat(document.getElementById("precio").value);
+    const fotoInput = document.getElementById("foto");
 
+    let autos = getAutos();
     let auto = autos.find(a => a.codigo == codigo);
 
     if (!auto) {
         mostrarMensaje("auto_msg", "Auto no encontrado", "error");
         return;
     }
+    if (fotoInput.files.length > 0) {
+        const reader = new FileReader();
 
-    auto.marca = document.getElementById("marca").value;
-    auto.modelo = document.getElementById("modelo").value;
-    auto.motor = document.getElementById("motor").value;
-    auto.precio = parseFloat(document.getElementById("precio").value);
+        reader.onload = function (e) {
+            if (marca) auto.marca = marca;
+            if (modelo) auto.modelo = modelo;
+            if (motor) auto.motor = motor;
+            if (precio) auto.precio = precio;
+            auto.foto = e.target.result;
 
-    guardarAutos(autos);
-    mostrarAutos(getAutos());
+            guardarAutos(autos);
+            mostrarAutos(getAutos());
+
+            mostrarMensaje("auto_msg", "Auto modificado con nueva foto", "success");
+        };
+
+        reader.readAsDataURL(fotoInput.files[0]);
+
+    } else {
+        if (marca) auto.marca = marca;
+        if (modelo) auto.modelo = modelo;
+        if (motor) auto.motor = motor;
+        if (precio) auto.precio = precio;
+
+        guardarAutos(autos);
+        mostrarAutos(getAutos());
+
+        mostrarMensaje("auto_msg", "Auto modificado", "success");
+    }
     limpiarCampos();
-    mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
 function mostrarAutos(autos) {
@@ -164,7 +186,7 @@ function mostrarAutos(autos) {
                     ${a.foto ? `<img src="${a.foto}" width="80">` : "Sin foto"}
                 </td>
                 <td>
-                    <button class="btn btn-danger btn-sm" onclick="confirmarEliminacion('${a.codigo}')">
+                    <button class="btn btn-danger btn-sm" onclick="eliminarAuto('${a.codigo}')">
                         🗑 Eliminar
                     </button>
                 </td>
@@ -182,19 +204,9 @@ function buscarAuto() {
         mostrarMensaje("auto_msg", "Auto no encontrado", "error");
         return;
     }
-
-    // auto.marca = document.getElementById("marca").value;
-    // auto.modelo = document.getElementById("modelo").value;
-    // auto.motor = document.getElementById("motor").value;
-    // auto.precio = parseFloat(document.getElementById("precio").value);
-
-    // guardarAutos(autos);
     mostrarAutos([auto]);
-
-    // mostrarMensaje("auto_msg", "Auto modificado", "success");
 }
 
-// ===== INIT =====
 document.addEventListener("DOMContentLoaded", () => {
     mostrarAutos(getAutos());
 });
@@ -206,3 +218,55 @@ document.getElementById("btnModificar").addEventListener("click", modificarAuto)
 document.getElementById("btnBuscar").addEventListener("click", buscarAuto);
 document.getElementById("btnRecargar").addEventListener("click", recargar);
 document.getElementById("btnLogout").addEventListener("click", logout);
+//"Decorador" => si el usuario no esta logeado redirige al login (index.html)
+document.addEventListener("DOMContentLoaded", () => {
+    const usuario = localStorage.getItem("usuarioLogueado");
+    if (!usuario) {
+        mostrarMensaje("login_msg", "Debes iniciar sesión para ingresar a Gestión de Autos", "error");
+        window.location.href = "../index.html";
+    }else{
+        mostrarAutos(getAutos());
+    }
+});
+document.getElementById("busqueda").addEventListener("input", function () {
+    let texto = this.value.toLowerCase();
+    let autos = getAutos();
+
+    let filtrados = autos.filter(a =>
+        a.marca.toLowerCase().includes(texto) ||
+        a.modelo.toLowerCase().includes(texto)
+    );
+
+    mostrarAutos(filtrados);
+});
+
+document.getElementById("codigo").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+        buscarAuto();
+    }
+});
+
+document.getElementById("foto").addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const img = document.getElementById("preview");
+        img.src = e.target.result;
+        img.classList.remove("d-none");
+    };
+
+    reader.readAsDataURL(file);
+    reader.onload = function(e) {
+        const img = document.getElementById("preview");
+        img.src = e.target.result;
+        img.classList.remove("d-none");
+        setTimeout(() => {
+            img.classList.add("d-none");
+        }, 3000);
+    };
+});
+
+

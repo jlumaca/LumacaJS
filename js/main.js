@@ -18,36 +18,38 @@ function guardarUsuarios(usuarios) {
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
 }
 
-function registrar() {
+async function registrar() {
     const user = document.getElementById("reg_user").value;
     const pass = document.getElementById("reg_pass").value;
 
-    let usuarios = getUsuarios();
+    const res = await fetch("http://localhost:3000/registro", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user, pass })
+    });
 
-    if (usuarios.find(u => u.user === user)) {
-        mostrarMensaje("reg_msg", "El usuario ya existe", "error");
-        return;
+    if (res.ok) {
+        mostrarMensaje("reg_msg", "Usuario registrado", "success");
+    } else {
+        mostrarMensaje("reg_msg", await res.text(), "error");
     }
-
-    usuarios.push({ user, pass });
-    guardarUsuarios(usuarios);
-
-    mostrarMensaje("reg_msg", "Usuario registrado correctamente", "success");
-
-    setTimeout(() => {
-        window.location.href = "../index.html";
-    }, 1500);
 }
 
-function login() {
+async function login() {
     const user = document.getElementById("login_user").value;
     const pass = document.getElementById("login_pass").value;
 
-    let usuarios = getUsuarios();
+    const res = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user, pass })
+    });
 
-    let encontrado = usuarios.find(u => u.user === user && u.pass === pass);
-
-    if (encontrado) {
+    if (res.ok) {
         localStorage.setItem("usuarioLogueado", user);
         window.location.href = "templates/autos.html";
     } else {
@@ -67,105 +69,87 @@ function limpiarCampos(){
     document.getElementById("motor").value = "";
     document.getElementById("precio").value = "";
 }
-function getAutos() {
-    return JSON.parse(localStorage.getItem("autos")) || [];
+async function getAutos() {
+    const res = await fetch("http://localhost:3000/autos");
+    return await res.json();
 }
 
 function guardarAutos(autos) {
     localStorage.setItem("autos", JSON.stringify(autos));
 }
 
-function agregarAuto() {
+async function agregarAuto() {
+    const formData = new FormData();
+
+    formData.append("codigo", document.getElementById("codigo").value);
+    formData.append("marca", document.getElementById("marca").value);
+    formData.append("modelo", document.getElementById("modelo").value);
+    formData.append("motor", document.getElementById("motor").value);
+    formData.append("precio", document.getElementById("precio").value);
+
+    const foto = document.getElementById("foto").files[0];
+    if (foto) {
+        formData.append("foto", foto);
+    }
+
+    const res = await fetch("http://localhost:3000/auto", {
+        method: "POST",
+        body: formData
+    });
+
+    if (res.ok) {
+        mostrarMensaje("auto_msg", "Auto agregado", "success");
+        mostrarAutos(await getAutos());
+    } else {
+        mostrarMensaje("auto_msg", await res.text(), "error");
+    }
+}
+
+async function eliminarAuto(codigo) {
+    const res = await fetch(`http://localhost:3000/auto/${codigo}`, {
+        method: "DELETE"
+    });
+
+    if (res.ok) {
+        mostrarMensaje("auto_msg", "Auto eliminado", "success");
+        mostrarAutos(await getAutos());
+    } else {
+        mostrarMensaje("auto_msg", "Error al eliminar", "error");
+    }
+}
+
+async function modificarAuto() {
     const codigo = document.getElementById("codigo").value;
+
     const marca = document.getElementById("marca").value;
     const modelo = document.getElementById("modelo").value;
     const motor = document.getElementById("motor").value;
-    const precio = parseFloat(document.getElementById("precio").value);
-    const fotoInput = document.getElementById("foto");
-    let autos = getAutos();
-
-    if (autos.find(a => a.codigo == codigo)) {
-        mostrarMensaje("auto_msg", "El código ya existe", "error");
-        return;
-    }
-
-    if (fotoInput.files.length > 0) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-            const fotoBase64 = e.target.result;
-
-            autos.push({ codigo, marca, modelo, motor, precio, foto: fotoBase64 });
-            guardarAutos(autos);
-
-            mostrarMensaje("auto_msg", "Auto agregado con foto", "success");
-            mostrarAutos(getAutos());
-        };
-
-        reader.readAsDataURL(fotoInput.files[0]);
-    } else {
-        autos.push({ codigo, marca, modelo, motor, precio, foto: null });
-        guardarAutos(autos);
-
-        mostrarMensaje("auto_msg", "Auto agregado sin foto", "success");
-        mostrarAutos(getAutos());
-    }
-    limpiarCampos();
-}
-
-function eliminarAuto(codigo) {
-    let autos = getAutos();
-    autos = autos.filter(a => a.codigo != codigo);
-    guardarAutos(autos);
-    mostrarAutos(getAutos());
-
-    mostrarMensaje("auto_msg", "Auto eliminado", "success");
-}
-
-function modificarAuto() {
-    const codigo = document.getElementById("codigo").value;
-    const marca = document.getElementById("marca").value;
-    const modelo = document.getElementById("modelo").value;
-    const motor = document.getElementById("motor").value;
-    const precio = parseFloat(document.getElementById("precio").value);
+    const precio = document.getElementById("precio").value;
     const fotoInput = document.getElementById("foto");
 
-    let autos = getAutos();
-    let auto = autos.find(a => a.codigo == codigo);
+    const formData = new FormData();
 
-    if (!auto) {
-        mostrarMensaje("auto_msg", "Auto no encontrado", "error");
-        return;
-    }
+    if (marca) formData.append("marca", marca);
+    if (modelo) formData.append("modelo", modelo);
+    if (motor) formData.append("motor", motor);
+    if (precio) formData.append("precio", precio);
+
     if (fotoInput.files.length > 0) {
-        const reader = new FileReader();
+        formData.append("foto", fotoInput.files[0]);
+    }
 
-        reader.onload = function (e) {
-            if (marca) auto.marca = marca;
-            if (modelo) auto.modelo = modelo;
-            if (motor) auto.motor = motor;
-            if (precio) auto.precio = precio;
-            auto.foto = e.target.result;
+    const res = await fetch(`http://localhost:3000/auto/${codigo}`, {
+        method: "PUT",
+        body: formData
+    });
 
-            guardarAutos(autos);
-            mostrarAutos(getAutos());
-
-            mostrarMensaje("auto_msg", "Auto modificado con nueva foto", "success");
-        };
-
-        reader.readAsDataURL(fotoInput.files[0]);
-
-    } else {
-        if (marca) auto.marca = marca;
-        if (modelo) auto.modelo = modelo;
-        if (motor) auto.motor = motor;
-        if (precio) auto.precio = precio;
-
-        guardarAutos(autos);
-        mostrarAutos(getAutos());
-
+    if (res.ok) {
+        mostrarAutos(await getAutos());
         mostrarMensaje("auto_msg", "Auto modificado", "success");
+    } else {
+        mostrarMensaje("auto_msg", await res.text(), "error");
     }
+
     limpiarCampos();
 }
 
@@ -183,7 +167,7 @@ function mostrarAutos(autos) {
                 <td>${a.motor}</td>
                 <td>${a.precio}</td>
                 <td>
-                    ${a.foto ? `<img src="${a.foto}" width="80">` : "Sin foto"}
+                    <img src="http://localhost:3000/uploads/${a.foto}" width="80">
                 </td>
                 <td>
                     <button class="btn btn-danger btn-sm" onclick="eliminarAuto('${a.codigo}')">
@@ -194,29 +178,26 @@ function mostrarAutos(autos) {
         `;
     });
 }
-function buscarAuto() {
-    const codigo = document.getElementById("codigo").value;
-    let autos = getAutos();
+document.getElementById("busqueda").addEventListener("input", async function () {
+    let texto = this.value;
 
-    let auto = autos.find(a => a.codigo == codigo);
+    const res = await fetch(`http://localhost:3000/autos/buscar?q=${texto}`);
+    const autos = await res.json();
 
-    if (!auto) {
-        mostrarMensaje("auto_msg", "Auto no encontrado", "error");
-        return;
-    }
-    mostrarAutos([auto]);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    mostrarAutos(getAutos());
+    mostrarAutos(autos);
 });
-function recargar(){
-    window.location.reload();
-}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const autos = await getAutos();
+    mostrarAutos(autos);
+});
+
 document.getElementById("btnAgregar").addEventListener("click", agregarAuto);
 document.getElementById("btnModificar").addEventListener("click", modificarAuto);
-document.getElementById("btnBuscar").addEventListener("click", buscarAuto);
-document.getElementById("btnRecargar").addEventListener("click", recargar);
+document.getElementById("btnRecargar").addEventListener("click", async () => {
+    const autos = await getAutos();
+    mostrarAutos(autos);
+});
 document.getElementById("btnLogout").addEventListener("click", logout);
 //"Decorador" => si el usuario no esta logeado redirige al login (index.html)
 document.addEventListener("DOMContentLoaded", () => {

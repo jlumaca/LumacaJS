@@ -1,0 +1,18 @@
+[
+  {
+    "codigo": "123",
+    "marca": "asd",
+    "modelo": "asd",
+    "motor": "asd",
+    "precio": 1,
+    "foto": "1776905364762-MAXI SILVERA.jpg"
+  },
+  {
+    "codigo": "111",
+    "marca": "asd",
+    "modelo": "asd",
+    "motor": "asd",
+    "precio": "1",
+    "foto": "1776905004472-yumbo-max-50-automatica-negro.jpg"
+  }
+]

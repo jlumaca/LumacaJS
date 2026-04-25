@@ -2,5 +2,13 @@
   {
     "user": "admin",
     "pass": "admin"
+  },
+  {
+    "user": "asd",
+    "pass": "asd"
+  },
+  {
+    "user": "prueba",
+    "pass": "prueba"
   }
 ]

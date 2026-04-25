@@ -10,19 +10,13 @@ function mostrarMensaje(id, texto, tipo) {
         el.className = "";
     }, 3000);
 }
-function getUsuarios() {
-    return JSON.parse(localStorage.getItem("usuarios")) || [];
-}
 
-function guardarUsuarios(usuarios) {
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-}
 
 async function registrar() {
     const user = document.getElementById("reg_user").value;
     const pass = document.getElementById("reg_pass").value;
 
-    const res = await fetch("http://localhost:3000/registro", {
+    const res = await fetch("/registro", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -41,7 +35,7 @@ async function login() {
     const user = document.getElementById("login_user").value;
     const pass = document.getElementById("login_pass").value;
 
-    const res = await fetch("http://localhost:3000/login", {
+    const res = await fetch("/login", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -57,8 +51,19 @@ async function login() {
     }
 }
 
-function logout() {
+async function logout() {
+    const user = localStorage.getItem("usuarioLogueado");
+
+    await fetch("/logout", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ user })
+    });
+
     localStorage.removeItem("usuarioLogueado");
+
     window.location.href = "../index.html";
 }
 
@@ -70,7 +75,7 @@ function limpiarCampos(){
     document.getElementById("precio").value = "";
 }
 async function getAutos() {
-    const res = await fetch("http://localhost:3000/autos");
+    const res = await fetch("/autos");
     return await res.json();
 }
 
@@ -92,7 +97,7 @@ async function agregarAuto() {
         formData.append("foto", foto);
     }
 
-    const res = await fetch("http://localhost:3000/auto", {
+    const res = await fetch("/auto", {
         method: "POST",
         body: formData
     });
@@ -106,7 +111,7 @@ async function agregarAuto() {
 }
 
 async function eliminarAuto(codigo) {
-    const res = await fetch(`http://localhost:3000/auto/${codigo}`, {
+    const res = await fetch(`/auto/${codigo}`, {
         method: "DELETE"
     });
 
@@ -138,7 +143,7 @@ async function modificarAuto() {
         formData.append("foto", fotoInput.files[0]);
     }
 
-    const res = await fetch(`http://localhost:3000/auto/${codigo}`, {
+    const res = await fetch(`/auto/${codigo}`, {
         method: "PUT",
         body: formData
     });
@@ -181,7 +186,7 @@ function mostrarAutos(autos) {
 document.getElementById("busqueda").addEventListener("input", async function () {
     let texto = this.value;
 
-    const res = await fetch(`http://localhost:3000/autos/buscar?q=${texto}`);
+    const res = await fetch(`/autos/buscar?q=${texto}`);
     const autos = await res.json();
 
     mostrarAutos(autos);
@@ -199,33 +204,6 @@ document.getElementById("btnRecargar").addEventListener("click", async () => {
     mostrarAutos(autos);
 });
 document.getElementById("btnLogout").addEventListener("click", logout);
-//"Decorador" => si el usuario no esta logeado redirige al login (index.html)
-document.addEventListener("DOMContentLoaded", () => {
-    const usuario = localStorage.getItem("usuarioLogueado");
-    if (!usuario) {
-        mostrarMensaje("login_msg", "Debes iniciar sesión para ingresar a Gestión de Autos", "error");
-        window.location.href = "../index.html";
-    }else{
-        mostrarAutos(getAutos());
-    }
-});
-document.getElementById("busqueda").addEventListener("input", function () {
-    let texto = this.value.toLowerCase();
-    let autos = getAutos();
-
-    let filtrados = autos.filter(a =>
-        a.marca.toLowerCase().includes(texto) ||
-        a.modelo.toLowerCase().includes(texto)
-    );
-
-    mostrarAutos(filtrados);
-});
-
-document.getElementById("codigo").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        buscarAuto();
-    }
-});
 
 document.getElementById("foto").addEventListener("change", function () {
     const file = this.files[0];

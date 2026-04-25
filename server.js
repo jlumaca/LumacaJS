@@ -28,7 +28,7 @@ function guardarArchivo(file, data) {
 
 const AUTOS_FILE = "data/autos.json";
 const USERS_FILE = "data/usuarios.json";
-
+app.use(express.static("public"));
 
 // ---------------- AUTOS ----------------
 
@@ -147,13 +147,27 @@ app.post("/login", (req, res) => {
 
     let usuarios = leerArchivo(USERS_FILE);
 
-    let encontrado = usuarios.find(u => u.user === user && u.pass === pass);
+    let index = usuarios.findIndex(u => u.user === user && u.pass === pass);
 
-    if (!encontrado) {
+    if (index === -1) {
         return res.status(401).send("Credenciales incorrectas");
     }
 
     res.send("Login correcto");
+});
+
+app.post("/logout", (req, res) => {
+    const { user } = req.body;
+
+    let usuarios = leerArchivo(USERS_FILE);
+
+    let index = usuarios.findIndex(u => u.user === user);
+
+    if (index === -1) {
+        return res.status(404).send("Usuario no encontrado");
+    }
+
+    res.send("Logout correcto");
 });
 
 

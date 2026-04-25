@@ -38,6 +38,9 @@ async function registrar() {
     } else {
         mostrarMensaje("reg_msg", await res.text(), "error");
     }
+    setTimeout(() => {
+        window.location.href = "../index.html";
+    }, 1500);
 }
 
 async function login() {

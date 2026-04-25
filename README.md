@@ -11,7 +11,6 @@ Desarrollada con **Node.js (Express)** en el backend y **HTML + JS** en el front
 - Registro de usuarios
 - Login
 - Logout
-- Control básico de sesión (`logueado` en JSON)
 
 ### 🚘 Autos
 - Agregar autos
@@ -32,6 +31,3 @@ Desarrollada con **Node.js (Express)** en el backend y **HTML + JS** en el front
 - HTML + Bootstrap
 - JSON como almacenamiento (simulación de base de datos)
 
----
-
-## 📁 Estructura del proyecto

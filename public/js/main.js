@@ -11,6 +11,13 @@ function mostrarMensaje(id, texto, tipo) {
     }, 3000);
 }
 
+function getUsuarios() {
+    return JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+function guardarUsuarios(usuarios) {
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
+}
 
 async function registrar() {
     const user = document.getElementById("reg_user").value;
@@ -23,8 +30,10 @@ async function registrar() {
         },
         body: JSON.stringify({ user, pass })
     });
-
+    let usuarios = getUsuarios();
     if (res.ok) {
+        usuarios.push({ user, pass });
+        guardarUsuarios(usuarios);
         mostrarMensaje("reg_msg", "Usuario registrado", "success");
     } else {
         mostrarMensaje("reg_msg", await res.text(), "error");
@@ -226,6 +235,23 @@ document.getElementById("foto").addEventListener("change", function () {
             img.classList.add("d-none");
         }, 3000);
     };
+});
+
+//"Decorador" => si el usuario no esta logeado redirige al login (index.html)
+document.addEventListener("DOMContentLoaded", async () => {
+    const usuario = localStorage.getItem("usuarioLogueado");
+
+    if (!usuario) {
+        window.location.href = "../index.html";
+        return;
+    }
+
+    try {
+        const autos = await getAutos();
+        mostrarAutos(autos);
+    } catch (error) {
+        console.error("Error cargando autos:", error);
+    }
 });
 
 

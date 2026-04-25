@@ -10,5 +10,9 @@
   {
     "user": "prueba",
     "pass": "prueba"
+  },
+  {
+    "user": "local",
+    "pass": "local"
   }
 ]

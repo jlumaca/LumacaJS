@@ -24,10 +24,8 @@ Desarrollada con **Node.js (Express)** en el backend y **HTML + JS** en el front
 
 ## 🛠️ Tecnologías utilizadas
 
-- Node.js
-- Express
-- Multer (subida de imágenes)
 - JavaScript (Frontend)
 - HTML + Bootstrap
 - JSON como almacenamiento (simulación de base de datos)
+- Localstorage como almacenamiento en el navegador
 
